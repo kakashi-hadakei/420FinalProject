@@ -1,6 +1,7 @@
 package com.example.ece420final.businesscard;
 
 
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
