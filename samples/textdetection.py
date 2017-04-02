@@ -51,9 +51,11 @@ for channel in channels:
     rect = rects[r]
     cv2.rectangle(vis, (rect[0],rect[1]), (rect[0]+rect[2],rect[1]+rect[3]), (0, 0, 0), 2)
     cv2.rectangle(vis, (rect[0],rect[1]), (rect[0]+rect[2],rect[1]+rect[3]), (255, 255, 255), 1)
+    image_out = vis[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]
+    nameid = '../outfile'+str(r)+'.jpg'
+    cv2.imwrite(nameid,image_out)
 
 
 #Visualization
 cv2.imshow("Text detection result", vis)
-cv2.imwrite("../result1.jpg",vis)
 cv2.waitKey(0)

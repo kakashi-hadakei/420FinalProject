@@ -6,11 +6,19 @@ Simple and fast image transforms to mimic:
  - dilation
 '''
 
+'''
+Simple and fast image transforms to mimic:
+ - brightness
+ - contrast
+ - erosion 
+ - dilation
+'''
+
 import cv2
 from pylab import array, plot, show, axis, arange, figure, uint8 
 
 # Image data
-image = cv2.imread('imgur.png',0) # load as 1-channel 8bit grayscale
+image = cv2.imread('17.jpg',0) # load as 1-channel 8bit grayscale
 cv2.imshow('image',image)
 maxIntensity = 255.0 # depends on dtype of image data
 x = arange(maxIntensity) 
