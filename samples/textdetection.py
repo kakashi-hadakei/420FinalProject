@@ -57,5 +57,6 @@ for channel in channels:
 
 
 #Visualization
-cv2.imshow("Text detection result", vis)
+#cv2.imshow("Text detection result", vis)
+cv2.imwrite("../result1.jpg",vis)
 cv2.waitKey(0)
