@@ -63,11 +63,11 @@ rects = cv2.text.erGrouping(img,channel,[r.tolist() for r in regions])
 for r in range(0,np.shape(rects)[0]):
     rect = rects[r]
     image_out = vis[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]
-    nameid = 'outfile'+str(r)+'.jpg'
+    nameid = '../outfile'+str(r)+'.jpg'
     scipy.misc.imsave(nameid, image_out)
 ##print(len(np.shape(rects)[0]))
 
-##cv2.imshow("Text detection result", vis)
+cv2.imshow("Text detection result", vis)
 
 #print pytesseract.image_to_string(scipy.misc.imread('outfile.jpg'))
 cv2.waitKey(0)

@@ -45,6 +45,8 @@ newImage1 = (maxIntensity/phi)*(image/(maxIntensity/theta))**2
 newImage1 = array(newImage1,dtype=uint8)
 
 cv2.imshow('newImage1',newImage1)
+cv2.imwrite('newImage1.jpg',newImage1)
+
 
 z = (maxIntensity/phi)*(x/(maxIntensity/theta))**2
 
