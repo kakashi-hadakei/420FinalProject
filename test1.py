@@ -10,12 +10,16 @@ if (len(sys.argv) < 2):
 
 file_name = str(sys.argv[1])
 image = cv2.imread(file_name)
+# Increase intensity such that
+# dark pixels become much brighter, 
+# bright pixels become slightly bright
+
 gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale
 _,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY_INV) # threshold
 kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,1))
 dilated = cv2.dilate(thresh,kernel,iterations = 10) # dilate
 
-img,contours, hierarchy = cv2.findContours(dilated,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE) # get contours
+img,contours,hierarchy = cv2.findContours(dilated,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE) # get contours
 
 
 # for each contour found, draw a rectangle around it on original image
@@ -37,7 +41,7 @@ for contour in contours:
     if h<10 or w<10:
 	   continue
     image_out = image[y:y+h,x:x+w]
-    nameid = './output/outfile '+name+' '+str(num)+'.jpg'
+    nameid = './output/outfile'+name+str(num)+'.jpg'
     cv2.imwrite(nameid,image_out)
     num += 1
 
