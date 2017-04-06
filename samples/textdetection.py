@@ -34,7 +34,7 @@ for c in range(0,cn):
 print("Extracting Class Specific Extremal Regions from "+str(len(channels))+" channels ...")
 print("    (...) this may take a while (...)")
 for channel in channels:
-
+  
   erc1 = cv2.text.loadClassifierNM1('./trained_classifierNM1.xml')
   er1 = cv2.text.createERFilterNM1(erc1,16,0.00015,0.13,0.2,True,0.1)
 

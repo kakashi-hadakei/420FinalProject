@@ -67,7 +67,7 @@ for r in range(0,np.shape(rects)[0]):
     scipy.misc.imsave(nameid, image_out)
 ##print(len(np.shape(rects)[0]))
 
-cv2.imshow("Text detection result", vis)
+#cv2.imshow("Text detection result", vis)
 
 #print pytesseract.image_to_string(scipy.misc.imread('outfile.jpg'))
 cv2.waitKey(0)
