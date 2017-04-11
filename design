@@ -1,0 +1,6 @@
+MainActivity ---> Take a image
+
+
+	     ---> Detection --> SelectImageToProcess --> Display processed Image
+
+			
