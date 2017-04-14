@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.graphics.BitmapFactory;
 import android.widget.Toast;
 import android.graphics.Matrix;
-import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.File;
