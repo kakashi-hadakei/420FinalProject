@@ -1,20 +1,23 @@
 package com.example.ece420final.businesscard;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.util.Log;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import android.graphics.*;
+import com.googlecode.tesseract.android.*;
+import java.io.File;
+import android.content.res.AssetManager;
+import java.io.*;
+
 
 
 
@@ -28,6 +31,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 
 
+
+
+
 /**
  * Created by hanfei on 4/10/17.
  * process received taken Image according to
@@ -37,13 +43,16 @@ import org.opencv.core.Rect;
 public class DetectionActivity extends AppCompatActivity  {
 
     private static final String TAG = "DetectionActivity";
+
     private ImageView myImg;
     private Button myRecognitionButton;
     private String receivedImgPath;
+    private ArrayList<Bitmap> mySubImg;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection);
+
 
         Bundle extras = getIntent().getExtras();
         receivedImgPath = extras.getString("imgFilePathDetect");
@@ -51,8 +60,10 @@ public class DetectionActivity extends AppCompatActivity  {
             Log.d(TAG,receivedImgPath);
         }
 
+        mySubImg = new ArrayList<Bitmap>();
         myImg = (ImageView)findViewById(R.id.imageView2);
-        myImg.setImageBitmap(getProcessedBitmap(receivedImgPath));
+        Bitmap rotated = getProcessedBitmap(receivedImgPath);
+        myImg.setImageBitmap(rotated);
 
 
         myRecognitionButton = (Button)findViewById(R.id.buttonRecognition);
@@ -60,9 +71,16 @@ public class DetectionActivity extends AppCompatActivity  {
         myRecognitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent detectIntent = new Intent(getActivity(),RecognitionActivity.class);
+                detectIntent.putExtra("subImages",mySubImg);
+                startActivity(detectIntent);
 
             }
         });
+    }
+
+    private AppCompatActivity getActivity(){
+        return DetectionActivity.this;
     }
 
     private Bitmap getProcessedBitmap(String imgPath){
@@ -109,14 +127,20 @@ public class DetectionActivity extends AppCompatActivity  {
                 */
 
                 if(rect.height > 500 && rect.width > 500){continue;}
-                if(rect.height <10 || rect.width < 10){continue;}
+                if(rect.height <30 || rect.width < 30){continue;}
                 Imgproc.rectangle(imgOriginal,
                         new Point(rect.x,rect.y),
                         new Point(rect.x+rect.width,rect.y+rect.height),
                         new Scalar(255,0,255),
                         2);
-                Imgproc.resize(imgOriginal,imgOriginal,imgOriginal.size(),7,7,Imgproc.INTER_CUBIC);
+                Bitmap subMap = Bitmap.createBitmap(myBitmap,rect.x,rect.y,rect.width,rect.height);
+                //subMap = Bitmap.createScaledBitmap(subMap,7*rect.width,7*rect.height,false);
+                mySubImg.add(subMap);
+                subMap.recycle();
 
+
+
+                Imgproc.resize(imgOriginal,imgOriginal,imgOriginal.size(),7,7,Imgproc.INTER_CUBIC);
             }
 
             Utils.matToBitmap(imgOriginal,bmpOut);
@@ -124,7 +148,7 @@ public class DetectionActivity extends AppCompatActivity  {
             matrix.postRotate(90);
             Bitmap rotatedBitmap = Bitmap.createBitmap(bmpOut, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
 
-
+            bmpOut.recycle();
             return rotatedBitmap;
         }
         return null;
@@ -135,7 +159,5 @@ public class DetectionActivity extends AppCompatActivity  {
             Imgproc.dilate(src,dst,kernel);
         }
     }
-
-
 
 }
