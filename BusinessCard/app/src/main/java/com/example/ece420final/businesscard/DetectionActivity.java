@@ -1,10 +1,9 @@
 package com.example.ece420final.businesscard;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,13 +12,6 @@ import android.widget.Button;
 import android.util.Log;
 import java.util.List;
 import java.util.ArrayList;
-import com.googlecode.tesseract.android.*;
-import java.io.File;
-import android.content.res.AssetManager;
-import java.io.*;
-
-
-
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
@@ -30,14 +22,12 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 
-
-
-
-
 /**
  * Created by hanfei on 4/10/17.
  * process received taken Image according to
  * the pre-tested python script
+ *
+ * detecting texts from the input image;
  */
 
 public class DetectionActivity extends AppCompatActivity  {
@@ -47,12 +37,11 @@ public class DetectionActivity extends AppCompatActivity  {
     private ImageView myImg;
     private Button myRecognitionButton;
     private String receivedImgPath;
-    private ArrayList<Bitmap> mySubImg;
+    protected static ArrayList<Bitmap> mySubImg;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection);
-
 
         Bundle extras = getIntent().getExtras();
         receivedImgPath = extras.getString("imgFilePathDetect");
@@ -71,15 +60,14 @@ public class DetectionActivity extends AppCompatActivity  {
         myRecognitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent detectIntent = new Intent(getActivity(),RecognitionActivity.class);
-                detectIntent.putExtra("subImages",mySubImg);
+                Intent detectIntent = new Intent(getCurrentActivity(),RecognitionActivity.class);
                 startActivity(detectIntent);
 
             }
         });
     }
 
-    private AppCompatActivity getActivity(){
+    private Activity getCurrentActivity(){
         return DetectionActivity.this;
     }
 
@@ -87,7 +75,9 @@ public class DetectionActivity extends AppCompatActivity  {
         if(imgPath != null) {
             Bitmap myBitmap = BitmapFactory.decodeFile(imgPath);
 
-             /*gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale
+             /*
+
+             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale
                 _,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY_INV) # threshold
                 kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,1))
                 dilated = cv2.dilate(thresh,kernel,iterations = 10) # dilate
@@ -126,28 +116,20 @@ public class DetectionActivity extends AppCompatActivity  {
                 * cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),2)
                 */
 
-                if(rect.height > 500 && rect.width > 500){continue;}
+                if(rect.height > 300 && rect.width > 300){continue;}
                 if(rect.height <30 || rect.width < 30){continue;}
-                Imgproc.rectangle(imgOriginal,
-                        new Point(rect.x,rect.y),
+                Imgproc.rectangle(imgOriginal, new Point(rect.x,rect.y),
                         new Point(rect.x+rect.width,rect.y+rect.height),
                         new Scalar(255,0,255),
                         2);
                 Bitmap subMap = Bitmap.createBitmap(myBitmap,rect.x,rect.y,rect.width,rect.height);
-                //subMap = Bitmap.createScaledBitmap(subMap,7*rect.width,7*rect.height,false);
                 mySubImg.add(subMap);
-                subMap.recycle();
+                //subMap.recycle();
 
-
-
-                Imgproc.resize(imgOriginal,imgOriginal,imgOriginal.size(),7,7,Imgproc.INTER_CUBIC);
             }
-
             Utils.matToBitmap(imgOriginal,bmpOut);
-            Matrix matrix = new Matrix();
-            matrix.postRotate(90);
-            Bitmap rotatedBitmap = Bitmap.createBitmap(bmpOut, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
-
+            Imgproc.resize(imgOriginal,imgOriginal,imgOriginal.size(),7,7,Imgproc.INTER_CUBIC);
+            Bitmap rotatedBitmap = NecessaryOperation.rotateBitmap(myBitmap, bmpOut);
             bmpOut.recycle();
             return rotatedBitmap;
         }

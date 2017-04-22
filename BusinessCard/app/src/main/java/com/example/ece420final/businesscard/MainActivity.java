@@ -1,7 +1,5 @@
 package com.example.ece420final.businesscard;
 
-
-
 //test
 import android.Manifest;
 import android.app.Activity;
@@ -75,10 +73,13 @@ public class MainActivity extends AppCompatActivity {
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 imgFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),timeStamp+".jpg");
                 Uri imgUri = Uri.fromFile(imgFile);
+
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imgUri);
                 cameraIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,1);
+
                 if (cameraIntent.resolveActivity(getPackageManager()) != null){
                     startActivityForResult(cameraIntent,REQUEST_CODE);
+
                     if(camera != null){
                         camera.release();
                         camera = null;
@@ -93,18 +94,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //pass in String
-
-                Intent detectIntent = new Intent(getMainActivity(),DetectionActivity.class);
+                Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
                 detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
                 startActivity(detectIntent);
             }
         });
 
-
-
     }
 
-    private Activity getMainActivity(){
+    private Activity getCurrentActivity(){
         return MainActivity.this;
     }
 
@@ -114,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"Resuming");
         imageView =(ImageView) findViewById(R.id.imageView);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imageView.setMaxWidth(640);
-        imageView.setMaxHeight(480);
         if(imgFilePath != null){
             Log.d(TAG,imgFilePath);
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFilePath);

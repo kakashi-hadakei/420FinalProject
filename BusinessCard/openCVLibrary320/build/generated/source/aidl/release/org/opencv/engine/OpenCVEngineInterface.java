@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /home/hanfei/420FinalProject/BusinessCard/openCVLibrary320/src/main/aidl/org/opencv/engine/OpenCVEngineInterface.aidl
+ * Original file: /home/hanfei/ECE420/420FinalProject/BusinessCard/openCVLibrary320/src/main/aidl/org/opencv/engine/OpenCVEngineInterface.aidl
  */
 package org.opencv.engine;
 /**

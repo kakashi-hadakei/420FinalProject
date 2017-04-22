@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 /**
  * Created by hanfei on 4/15/17.
+ * Recogniton Module for detection
  */
 
 public class RecognitionActivity extends AppCompatActivity {
@@ -29,29 +30,33 @@ public class RecognitionActivity extends AppCompatActivity {
     private TextView text;
     private TessBaseAPI tessBaseApi;
     private ArrayList<Bitmap> receiveSubImg;
+    private String recognized;
 
 
     protected void onCreate(Bundle savedBundleState){
         super.onCreate(savedBundleState);
         setContentView(R.layout.activity_recognition);
 
-        //Bundle extras = getIntent().getExtras();
-        //receiveSubImg = (ArrayList<Bitmap>)extras.getParcelable("subImages");
-
-        receiveSubImg =(ArrayList<Bitmap>) getIntent().getParcelableExtra("subImages");
-        if(receiveSubImg != null)
-            Log.d(TAG,"I GOT IT");
-
+        receiveSubImg = DetectionActivity.mySubImg;
         loadData();
 
         myImg = (ImageView)findViewById(R.id.imageView3);
-
         text = (TextView)findViewById(R.id.textView);
 
+        try{initTessBase();}
+        catch(Exception e){Log.d(TAG,"tesseBaseApi init failed "+e.getMessage());}
+        //myImg.setImageBitmap(NecessaryOperation.rotateBitmap(receiveSubImg.get(2),receiveSubImg.get(2)));
+        for(int i = 0;i < receiveSubImg.size();i++)
+            recognized = extractText(NecessaryOperation.rotateBitmap(receiveSubImg.get(i),receiveSubImg.get(i)));
+        //text.setText(recognized);
+        tessBaseApi.end();
+
+    }
+
+    private void initTessBase() throws Exception{
         tessBaseApi = new TessBaseAPI();
         tessBaseApi.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_CHAR);
         tessBaseApi.init(DATA_PATH, "eng");
-
     }
 
     private void loadData(){
@@ -98,26 +103,18 @@ public class RecognitionActivity extends AppCompatActivity {
                 Log.e(TAG, "Was unable to copy " + lang + " traineddata " + e.toString());
             }
         }
-
-
     }
 
-    private String extractText(Bitmap bitmap) throws Exception
+    private String extractText(Bitmap bitmap)
     {
+        //bitmap resize;
+        //Bitmap resized = Bitmap.createScaledBitmap(bitmap,5*bitmap.getWidth(),5*bitmap.getHeight(),false);
+        //tessBaseApi.setImage(resized);
         tessBaseApi.setImage(bitmap);
-        //tessBaseApi.setRectangle(x,y,w,h);
         String extractedText = tessBaseApi.getUTF8Text();
-        Log.d(TAG,"extract Text\n"+extractedText);
-        tessBaseApi.end();
+        //resized.recycle();
+        Log.d(TAG,"extract Text:\t"+extractedText);
         return extractedText;
     }
 
-    /*
-                try{
-                    extractText(subMap);
-                    subMap.recycle();
-                }catch(Exception e){
-                    Log.d(TAG,"getProcessedMap"+e.getMessage());
-
-                }*/
 }
