@@ -46,7 +46,7 @@ for contour in contours:
     num += 1
 
     # draw rectangle around contour on original image
-    cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),2)
+    cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),1)
 
 # write original image with added contours to disk  
 cv2.imwrite("./output/contoured.jpg", image)

@@ -41,4 +41,12 @@
         android:layout_alignParentRight="true"
         android:text="Button" />
 
+    <Button
+        android:id="@+id/buttonCrop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/buttonCapture"
+        android:layout_centerHorizontal="true"
+        android:text="Button" />
+
 </RelativeLayout>

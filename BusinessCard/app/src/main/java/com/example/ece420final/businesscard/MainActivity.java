@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 
 
 
+
 import org.opencv.android.OpenCVLoader;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private String imgFilePath;
     private String imgFilePathDetect;
     private ImageView imageView;
+    private Button cropping;
 
     static {
         if(!OpenCVLoader.initDebug()){
@@ -63,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
+
+
+
 
         captureButton = (Button)findViewById(R.id.buttonCapture);
         captureButton.setText("Get Image");
@@ -97,6 +102,18 @@ public class MainActivity extends AppCompatActivity {
                 Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
                 detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
                 startActivity(detectIntent);
+            }
+        });
+
+        cropping = (Button)findViewById(R.id.buttonCrop);
+        cropping.setText("Let's just take the card");
+        cropping.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cropIntent = new Intent(getCurrentActivity(),CropActivity.class);
+                cropIntent.putExtra("cropping image",imgFilePathDetect);
+                startActivity(cropIntent);
+
             }
         });
 
