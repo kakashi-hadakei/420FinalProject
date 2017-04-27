@@ -26,7 +26,8 @@ import java.io.File;
 import android.graphics.Bitmap;
 
 
-
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.opencv.android.OpenCVLoader;
 
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private String imgFilePathDetect;
     private ImageView imageView;
     private Button cropping;
+    protected static Uri resultUri;
 
     static {
         if(!OpenCVLoader.initDebug()){
@@ -66,9 +68,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
 
-
-
-
+        
         captureButton = (Button)findViewById(R.id.buttonCapture);
         captureButton.setText("Get Image");
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 //pass in String
                 Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
                 detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
+                //detectIntent.putExtra("uri cropped",resultUri);
                 startActivity(detectIntent);
             }
         });
@@ -110,10 +111,11 @@ public class MainActivity extends AppCompatActivity {
         cropping.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent cropIntent = new Intent(getCurrentActivity(),CropActivity.class);
-                cropIntent.putExtra("cropping image",imgFilePathDetect);
-                startActivity(cropIntent);
-
+                Log.d(TAG,"STARTING CROPPING");
+                //Log.d(TAG,"uri "+imgFilePathDetect);
+                CropImage.activity(Uri.parse("file://"+imgFilePathDetect))
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(getCurrentActivity());
             }
         });
 
@@ -173,5 +175,21 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
+
+        if (request == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult output = CropImage.getActivityResult(data);
+            Log.d(TAG,"IT MATCHES THE REQUEST CODE");
+            if (result == RESULT_OK) {
+                Log.d(TAG,"IT IS OK");
+                resultUri = output.getUri();
+                Log.d(TAG,resultUri.toString());
+            } else if (result == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = output.getError();
+                Log.d(TAG,error.getMessage());
+
+            }
+        }
+
+
     }
 }

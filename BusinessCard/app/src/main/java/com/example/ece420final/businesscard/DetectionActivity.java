@@ -10,8 +10,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.util.Log;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
+import android.provider.MediaStore;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
@@ -21,6 +26,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
+import android.net.Uri;
 
 /**
  * Created by hanfei on 4/10/17.
@@ -38,10 +44,13 @@ public class DetectionActivity extends AppCompatActivity  {
     private Button myRecognitionButton;
     private String receivedImgPath;
     protected static ArrayList<Bitmap> mySubImg;
+    private Uri cropped ;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection);
+
+        cropped = MainActivity.resultUri;
 
         Bundle extras = getIntent().getExtras();
         receivedImgPath = extras.getString("imgFilePathDetect");
@@ -73,42 +82,39 @@ public class DetectionActivity extends AppCompatActivity  {
 
     private Bitmap getProcessedBitmap(String imgPath){
         if(imgPath != null) {
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgPath);
-
-             /*
-
-             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale
+            Bitmap myBitmap;
+            try{
+                myBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),cropped);
+                 /*
+                gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale
                 _,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY_INV) # threshold
                 kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,1))
                 dilated = cv2.dilate(thresh,kernel,iterations = 10) # dilate
                 img,contours,hierarchy = cv2.findContours(dilated,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE) # get contours
-            */
+                */
 
-            //dilation and detection;
-            Mat imgMat = new Mat();
-            Mat imgOriginal = new Mat();
-            Utils.bitmapToMat(myBitmap,imgMat);
-            Utils.bitmapToMat(myBitmap,imgOriginal);
-            Bitmap bmpOut = Bitmap.createBitmap(imgMat.cols(),imgMat.rows(),Bitmap.Config.ARGB_8888);
-            Imgproc.cvtColor(imgMat,imgMat,Imgproc.COLOR_BGR2GRAY);//to gray scale
-            Imgproc.threshold(imgMat,imgMat,100,255,Imgproc.THRESH_BINARY_INV);
+                //dilation and detection;
+                Mat imgMat = new Mat();
+                Mat imgOriginal = new Mat();
+                Utils.bitmapToMat(myBitmap,imgMat);
+                Utils.bitmapToMat(myBitmap,imgOriginal);
+                Bitmap bmpOut = Bitmap.createBitmap(imgMat.cols(),imgMat.rows(),Bitmap.Config.ARGB_8888);
+                Imgproc.cvtColor(imgMat,imgMat,Imgproc.COLOR_BGR2GRAY);//to gray scale
+                Imgproc.threshold(imgMat,imgMat,100,255,Imgproc.THRESH_BINARY_INV);
 
-            Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS,new Size(1,6));
-            dilate(imgMat,imgMat,kernel,10);
+                Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS,new Size(6,1));
+                dilate(imgMat,imgMat,kernel,10);
 
-            List<MatOfPoint> contours = new ArrayList<>();
-            Mat hierarchy = new Mat();
-            Imgproc.findContours(imgMat,contours,hierarchy,Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
+                List<MatOfPoint> contours = new ArrayList<>();
+                Mat hierarchy = new Mat();
+                Imgproc.findContours(imgMat,contours,hierarchy,Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
+                Collections.sort(contours,new SortByY());
+                //draw contours
+                for(int i = 0;i < contours.size();i++){
+                    MatOfPoint matOfPoint = contours.get(i);
+                    Rect rect = Imgproc.boundingRect(matOfPoint);
 
-
-            //draw contours
-            for(int i = 0;i < contours.size();i++){
-                MatOfPoint matOfPoint = contours.get(i);
-
-
-                Rect rect = Imgproc.boundingRect(matOfPoint);
-
-                //Log.d(TAG,Arrays.toString(contours.get(i).toArray()));
+                    //Log.d(TAG,Arrays.toString(contours.get(i).toArray()));
 
                 /*
                 * corresponding python script
@@ -116,22 +122,28 @@ public class DetectionActivity extends AppCompatActivity  {
                 * cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),2)
                 */
 
-                if(rect.height > 300 && rect.width > 300){continue;}
-                if(rect.height <30 || rect.width < 30){continue;}
-                Imgproc.rectangle(imgOriginal, new Point(rect.x,rect.y),
-                        new Point(rect.x+rect.width,rect.y+rect.height),
-                        new Scalar(255,0,255),
-                        2);
-                Bitmap subMap = Bitmap.createBitmap(myBitmap,rect.x,rect.y,rect.width,rect.height);
-                mySubImg.add(subMap);
-                //subMap.recycle();
+                    if(rect.height > 300 && rect.width > 300){continue;}
+                    if(rect.height <30 || rect.width < 30){continue;}
+                    Imgproc.rectangle(imgOriginal, new Point(rect.x,rect.y),
+                            new Point(rect.x+rect.width,rect.y+rect.height),
+                            new Scalar(255,0,255),
+                            2);
+                    Bitmap subMap = Bitmap.createBitmap(myBitmap,rect.x,rect.y,rect.width,rect.height);
+                    mySubImg.add(subMap);
+                    //subMap.recycle();
 
+                }
+                Utils.matToBitmap(imgOriginal,bmpOut);
+
+                //Bitmap rotatedBitmap = NecessaryOperation.rotateBitmap(myBitmap, bmpOut);
+                //bmpOut.recycle();
+                //return rotatedBitmap;
+                return bmpOut;
+
+            }catch(Exception e){
+                Log.d(TAG,e.getMessage());
             }
-            Utils.matToBitmap(imgOriginal,bmpOut);
-            Imgproc.resize(imgOriginal,imgOriginal,imgOriginal.size(),7,7,Imgproc.INTER_CUBIC);
-            Bitmap rotatedBitmap = NecessaryOperation.rotateBitmap(myBitmap, bmpOut);
-            bmpOut.recycle();
-            return rotatedBitmap;
+
         }
         return null;
     }
@@ -141,5 +153,6 @@ public class DetectionActivity extends AppCompatActivity  {
             Imgproc.dilate(src,dst,kernel);
         }
     }
+
 
 }
