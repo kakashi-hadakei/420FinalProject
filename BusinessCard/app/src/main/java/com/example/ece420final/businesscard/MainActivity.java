@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.graphics.BitmapFactory;
 import android.widget.Toast;
 import android.graphics.Matrix;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.io.File;
@@ -71,10 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView =(ImageView) findViewById(R.id.imageView);
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        
-        captureButton = (Button)findViewById(R.id.buttonCapture);
-        captureButton.setText("Get Image");
-        captureButton.setOnClickListener(new View.OnClickListener() {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -93,8 +92,10 @@ public class MainActivity extends AppCompatActivity {
                         camera = null;
                     }
                 }
+
             }
         });
+
 
         detectButton = (Button)findViewById(R.id.buttonRecognition);
         detectButton.setText("Find Text");
@@ -112,11 +113,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cropping = (Button)findViewById(R.id.buttonCrop);
-        cropping.setText("Let's just take the card");
+        cropping.setText("CROP THE CARD");
         cropping.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG,"STARTING CROPPING");
+                //Log.d(TAG,"STARTING CROPPING");
                 if(imgFilePathDetect != null){
                     //Log.d(TAG,"uri "+imgFilePathDetect);
                     CropImage.activity(Uri.parse("file://"+imgFilePathDetect))
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"Resuming");
 
         if(imgFilePath != null){
-            Log.d(TAG,imgFilePath);
+            //Log.d(TAG,imgFilePath);
             myBitmap = BitmapFactory.decodeFile(imgFilePath);
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
@@ -147,6 +148,16 @@ public class MainActivity extends AppCompatActivity {
             imgFilePath = null;
         }
 
+        if(resultUri != null && imgFilePath == null){
+            //Log.d(TAG,resultUri.toString());
+            try{
+                myBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),resultUri);
+                imageView.setImageBitmap(myBitmap);
+
+            } catch(IOException e){
+                Log.d(TAG,e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -187,9 +198,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (request == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult output = CropImage.getActivityResult(data);
-            Log.d(TAG,"IT MATCHES THE REQUEST CODE");
+            //Log.d(TAG,"IT MATCHES THE REQUEST CODE");
             if (result == RESULT_OK) {
-                Log.d(TAG,"IT IS OK");
+                //Log.d(TAG,"IT IS OK");
                 resultUri = output.getUri();
                 Log.d(TAG,resultUri.toString());
             } else if (result == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {

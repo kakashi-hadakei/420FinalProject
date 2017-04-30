@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.util.Log;
 import android.provider.MediaStore;
+import android.provider.ContactsContract.Intents;
+import android.provider.ContactsContract;
+
 
 
 import java.util.Collections;
@@ -35,9 +38,7 @@ import android.net.Uri;
  */
 
 public class DetectionActivity extends AppCompatActivity  {
-
     private static final String TAG = "DetectionActivity";
-
     private ImageView myImg;
     private Button myRecognitionButton;
     private String receivedImgPath;
@@ -45,21 +46,21 @@ public class DetectionActivity extends AppCompatActivity  {
     private Uri cropped ;
     private Bitmap processed;
     private Bitmap myBitmap;
+    private static int numEmails = 0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection);
 
-
         Bundle extras = getIntent().getExtras();
         receivedImgPath = extras.getString("imgFilePathDetect");
-        if(receivedImgPath != null){
+        /*if(receivedImgPath != null){
             Log.d(TAG,receivedImgPath);
-        }
+        }*/
         cropped = Uri.parse(extras.getString("CroppedUri"));
-        if(cropped != null){
+        /*if(cropped != null){
             Log.d(TAG,"received Uri "+cropped.toString());
-        }
+        }*/
 
         mySubImg = new ArrayList<Bitmap>();
         myImg = (ImageView)findViewById(R.id.imageView2);
@@ -68,7 +69,7 @@ public class DetectionActivity extends AppCompatActivity  {
 
 
         myRecognitionButton = (Button)findViewById(R.id.buttonRecognition);
-        myRecognitionButton.setText("Now Let's Recognize!!");
+        myRecognitionButton.setText("Create Contact");
         myRecognitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,10 +77,36 @@ public class DetectionActivity extends AppCompatActivity  {
                 recognizer.recognize();
                 ArrayList<ContactInfo> info = recognizer.info;
 
+                // Creates a new Intent to insert a contact
+                Intent intent = new Intent(Intents.Insert.ACTION);
+                // Sets the MIME type to match the Contacts Provider
+                intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+
                 for(int i = 0;i < info.size();i++){
-                    Log.d(TAG," "+ info.get(i).toString());
+                    ContactInfo in = info.get(i);
+                    //Log.d(TAG,in.toString());
+                    String content = in.getMyContent();
+                    String title = in.getMyTitle();
+                    if(title.equals("NAME")){
+                        intent.putExtra(Intents.Insert.NAME,content);
+                    }
+
+                    else if(title.equals("PHONENUMBER")){
+                        intent.putExtra(Intents.Insert.PHONE,content);
+                    }
+
+                    else if(title.equals("EMAIL") && numEmails == 0){
+                        intent.putExtra(Intents.Insert.EMAIL,content);
+                        numEmails++;
+                    }
+
+                    else if(title.equals("EMAIL") && numEmails == 1){
+                        intent.putExtra(Intents.Insert.SECONDARY_EMAIL,content);
+                    }
+
                 }
 
+                startActivity(intent);
             }
         });
 
@@ -140,7 +167,7 @@ public class DetectionActivity extends AppCompatActivity  {
                 * cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),2)
                 */
 
-                    if(rect.height > 300 && rect.width > 300){continue;}
+                    if(rect.height > 100 && rect.width > 300){continue;}
                     if(rect.height <30 || rect.width < 30){continue;}
                     Imgproc.rectangle(imgOriginal, new Point(rect.x,rect.y),
                             new Point(rect.x+rect.width,rect.y+rect.height),
@@ -166,8 +193,6 @@ public class DetectionActivity extends AppCompatActivity  {
         }
     }
 
-    protected void updateAdapter(ArrayList<ContactInfo> infoList){
 
-    }
 
 }

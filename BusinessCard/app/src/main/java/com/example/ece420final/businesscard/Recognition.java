@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -35,16 +33,15 @@ class Recognition  {
 
     public Recognition(Context context){
         myContext = context;
+        initialize();
     }
 
 
     public void recognize(){
-
-        initialize();
-
         for(int i = 0;i < receiveSubImg.size();i++){
             recognized = extractText(receiveSubImg.get(i));
             String phoneNumber = keepNumbers(recognized);
+
             if(i == 0){
                 //Log.d(TAG,"NAME "+ recognized);
                 info.add(new ContactInfo("NAME",recognized));
