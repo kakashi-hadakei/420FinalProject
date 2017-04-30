@@ -12,7 +12,7 @@ import java.util.Comparator;
  * coordinates by increasing y values
  */
 
-public class SortByY implements Comparator<MatOfPoint> {
+ class SortByY implements Comparator<MatOfPoint> {
         public int compare(MatOfPoint a,MatOfPoint b){
             Rect rectA = Imgproc.boundingRect(a);
             Rect rectB = Imgproc.boundingRect(b);

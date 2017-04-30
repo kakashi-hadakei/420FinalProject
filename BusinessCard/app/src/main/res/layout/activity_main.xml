@@ -18,10 +18,11 @@
         android:layout_height="wrap_content"
         android:background="@mipmap/ic_launcher"
         android:contentDescription="@string/app_name"
-        android:scaleType="matrix"
+        android:scaleType="fitXY"
         app:srcCompat="@android:drawable/ic_dialog_alert"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp" />
 
     <Button
         android:id="@+id/buttonCapture"

@@ -3,20 +3,18 @@ package com.example.ece420final.businesscard;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.util.Log;
+import android.provider.MediaStore;
 
-import java.util.Collection;
+
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
-import android.provider.MediaStore;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
@@ -45,23 +43,28 @@ public class DetectionActivity extends AppCompatActivity  {
     private String receivedImgPath;
     protected static ArrayList<Bitmap> mySubImg;
     private Uri cropped ;
+    private Bitmap processed;
+    private Bitmap myBitmap;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detection);
 
-        cropped = MainActivity.resultUri;
 
         Bundle extras = getIntent().getExtras();
         receivedImgPath = extras.getString("imgFilePathDetect");
         if(receivedImgPath != null){
             Log.d(TAG,receivedImgPath);
         }
+        cropped = Uri.parse(extras.getString("CroppedUri"));
+        if(cropped != null){
+            Log.d(TAG,"received Uri "+cropped.toString());
+        }
 
         mySubImg = new ArrayList<Bitmap>();
         myImg = (ImageView)findViewById(R.id.imageView2);
-        Bitmap rotated = getProcessedBitmap(receivedImgPath);
-        myImg.setImageBitmap(rotated);
+        processed = getProcessedBitmap(receivedImgPath);
+        myImg.setImageBitmap(processed);
 
 
         myRecognitionButton = (Button)findViewById(R.id.buttonRecognition);
@@ -69,11 +72,29 @@ public class DetectionActivity extends AppCompatActivity  {
         myRecognitionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent detectIntent = new Intent(getCurrentActivity(),RecognitionActivity.class);
-                startActivity(detectIntent);
+                Recognition recognizer = new Recognition(getCurrentActivity());
+                recognizer.recognize();
+                ArrayList<ContactInfo> info = recognizer.info;
+
+                for(int i = 0;i < info.size();i++){
+                    Log.d(TAG," "+ info.get(i).toString());
+                }
 
             }
         });
+
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        processed.recycle();
+        myBitmap.recycle();
+        for(int i = 0;i < mySubImg.size();i++){
+            mySubImg.get(i).recycle();
+        }
+
+
     }
 
     private Activity getCurrentActivity(){
@@ -82,7 +103,6 @@ public class DetectionActivity extends AppCompatActivity  {
 
     private Bitmap getProcessedBitmap(String imgPath){
         if(imgPath != null) {
-            Bitmap myBitmap;
             try{
                 myBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),cropped);
                  /*
@@ -114,8 +134,6 @@ public class DetectionActivity extends AppCompatActivity  {
                     MatOfPoint matOfPoint = contours.get(i);
                     Rect rect = Imgproc.boundingRect(matOfPoint);
 
-                    //Log.d(TAG,Arrays.toString(contours.get(i).toArray()));
-
                 /*
                 * corresponding python script
                 * # draw rectangle around contour on original image
@@ -130,14 +148,8 @@ public class DetectionActivity extends AppCompatActivity  {
                             2);
                     Bitmap subMap = Bitmap.createBitmap(myBitmap,rect.x,rect.y,rect.width,rect.height);
                     mySubImg.add(subMap);
-                    //subMap.recycle();
-
                 }
                 Utils.matToBitmap(imgOriginal,bmpOut);
-
-                //Bitmap rotatedBitmap = NecessaryOperation.rotateBitmap(myBitmap, bmpOut);
-                //bmpOut.recycle();
-                //return rotatedBitmap;
                 return bmpOut;
 
             }catch(Exception e){
@@ -154,5 +166,8 @@ public class DetectionActivity extends AppCompatActivity  {
         }
     }
 
+    protected void updateAdapter(ArrayList<ContactInfo> infoList){
+
+    }
 
 }

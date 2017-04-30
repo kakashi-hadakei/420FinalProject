@@ -25,7 +25,6 @@ import java.util.Date;
 import java.io.File;
 import android.graphics.Bitmap;
 
-
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -42,7 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private String imgFilePathDetect;
     private ImageView imageView;
     private Button cropping;
-    protected static Uri resultUri;
+    private Uri resultUri;
+    private Bitmap myBitmap;
+    private Bitmap rotatedBitmap;
 
     static {
         if(!OpenCVLoader.initDebug()){
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
 
+        imageView =(ImageView) findViewById(R.id.imageView);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         
         captureButton = (Button)findViewById(R.id.buttonCapture);
         captureButton.setText("Get Image");
@@ -99,10 +102,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //pass in String
-                Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
-                detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
-                //detectIntent.putExtra("uri cropped",resultUri);
-                startActivity(detectIntent);
+                if(imgFilePathDetect != null){
+                    Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
+                    detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
+                    detectIntent.putExtra("CroppedUri",resultUri.toString());
+                    startActivity(detectIntent);
+                }
             }
         });
 
@@ -112,10 +117,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG,"STARTING CROPPING");
-                //Log.d(TAG,"uri "+imgFilePathDetect);
-                CropImage.activity(Uri.parse("file://"+imgFilePathDetect))
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(getCurrentActivity());
+                if(imgFilePathDetect != null){
+                    //Log.d(TAG,"uri "+imgFilePathDetect);
+                    CropImage.activity(Uri.parse("file://"+imgFilePathDetect))
+                            .setGuidelines(CropImageView.Guidelines.ON)
+                            .start(getCurrentActivity());
+                }
             }
         });
 
@@ -129,14 +136,13 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         Log.d(TAG,"Resuming");
-        imageView =(ImageView) findViewById(R.id.imageView);
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
         if(imgFilePath != null){
             Log.d(TAG,imgFilePath);
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFilePath);
+            myBitmap = BitmapFactory.decodeFile(imgFilePath);
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
-            Bitmap rotatedBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
+            rotatedBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
             imageView.setImageBitmap(rotatedBitmap);
             imgFilePath = null;
         }
@@ -147,12 +153,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         Log.w(TAG, "App paused");
         super.onPause();
+        imgFilePath = null;
     }
 
     @Override
     protected void onDestroy() {
         Log.w(TAG, "App destroyed");
         super.onDestroy();
+        rotatedBitmap.recycle();
+        myBitmap.recycle();
     }
 
     protected void onActivityResult(int request,int result,Intent data){
@@ -186,10 +195,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (result == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = output.getError();
                 Log.d(TAG,error.getMessage());
-
             }
         }
-
-
     }
 }
