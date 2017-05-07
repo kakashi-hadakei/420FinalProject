@@ -43,36 +43,36 @@ class Recognition  {
             String phoneNumber = keepNumbers(recognized);
 
             if(i == 0){
-                //Log.d(TAG,"NAME "+ recognized);
+                Log.d(TAG,"NAME "+ recognized);
                 info.add(new ContactInfo("NAME",recognized));
             }
 
             if(recognized.indexOf("@") != -1){
                 int space = recognized.indexOf(" ");
+                int dot = recognized.lastIndexOf(".");
                 if(space != -1){
-                    info.add(new ContactInfo("EMAIL",recognized.substring(space+1)));
-                    //Log.d(TAG,"EMAIL "+recognized.substring(space));
+                    info.add(new ContactInfo("EMAIL",recognized.substring(space+1,dot+4)));
+                    Log.d(TAG,"EMAIL "+recognized.substring(space));
                 }
                 else{
-                    info.add(new ContactInfo("EMAIL",recognized));
-                    //Log.d(TAG,"EMAIL "+recognized);
+                    info.add(new ContactInfo("EMAIL",recognized.substring(0,dot+4)));
+                    Log.d(TAG,"EMAIL "+recognized);
                 }
             }
 
             if(!phoneNumber.equals(recognized)){
-                //Log.d(TAG,"PHONE NUMBER " + phoneNumber);
+                Log.d(TAG,"PHONE NUMBER " + phoneNumber);
                 info.add(new ContactInfo("PHONENUMBER",phoneNumber));
             }
 
         }
 
         tessBaseApi.end();
-
     }
 
     private void initialize() {
         info = new ArrayList<ContactInfo>();
-        receiveSubImg = DetectionActivity.mySubImg;
+        receiveSubImg = DetectionRecognitionActivity.mySubImg;
         loadData();
 
         try{

@@ -35,7 +35,6 @@ import org.opencv.android.OpenCVLoader;
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private static final String TAG = "MainActivity";
-    private Button captureButton;
     private Button detectButton;
     private Camera camera;
     private File imgFile;
@@ -104,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //pass in String
                 if(imgFilePathDetect != null){
-                    Intent detectIntent = new Intent(getCurrentActivity(),DetectionActivity.class);
+                    Intent detectIntent = new Intent(getCurrentActivity(),DetectionRecognitionActivity.class);
                     detectIntent.putExtra("imgFilePathDetect",imgFilePathDetect);
-                    detectIntent.putExtra("CroppedUri",resultUri.toString());
+                    if(resultUri != null) {detectIntent.putExtra("CroppedUri",resultUri.toString());}
                     startActivity(detectIntent);
                 }
             }
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             matrix.postRotate(90);
             rotatedBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
             imageView.setImageBitmap(rotatedBitmap);
-            imgFilePath = null;
+
         }
 
         if(resultUri != null && imgFilePath == null){
@@ -153,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
             try{
                 myBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),resultUri);
                 imageView.setImageBitmap(myBitmap);
+
 
             } catch(IOException e){
                 Log.d(TAG,e.getMessage());
@@ -165,14 +165,15 @@ public class MainActivity extends AppCompatActivity {
         Log.w(TAG, "App paused");
         super.onPause();
         imgFilePath = null;
+        resultUri = null;
     }
 
     @Override
     protected void onDestroy() {
         Log.w(TAG, "App destroyed");
         super.onDestroy();
-        rotatedBitmap.recycle();
-        myBitmap.recycle();
+        if(rotatedBitmap != null) {rotatedBitmap.recycle();}
+        if(myBitmap != null) {myBitmap.recycle();}
     }
 
     protected void onActivityResult(int request,int result,Intent data){

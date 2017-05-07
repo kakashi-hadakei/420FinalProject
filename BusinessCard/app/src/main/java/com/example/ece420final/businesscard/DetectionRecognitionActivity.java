@@ -37,8 +37,8 @@ import android.net.Uri;
  * detecting texts from the input image;
  */
 
-public class DetectionActivity extends AppCompatActivity  {
-    private static final String TAG = "DetectionActivity";
+public class DetectionRecognitionActivity extends AppCompatActivity  {
+    private static final String TAG = "DRActivity";
     private ImageView myImg;
     private Button myRecognitionButton;
     private String receivedImgPath;
@@ -47,6 +47,7 @@ public class DetectionActivity extends AppCompatActivity  {
     private Bitmap processed;
     private Bitmap myBitmap;
     private static int numEmails = 0;
+    private static int numPhone = 0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,17 +92,14 @@ public class DetectionActivity extends AppCompatActivity  {
                         intent.putExtra(Intents.Insert.NAME,content);
                     }
 
-                    else if(title.equals("PHONENUMBER")){
+                    else if(title.equals("PHONENUMBER") && numPhone == 0){
                         intent.putExtra(Intents.Insert.PHONE,content);
+                        numPhone++;
                     }
 
                     else if(title.equals("EMAIL") && numEmails == 0){
                         intent.putExtra(Intents.Insert.EMAIL,content);
                         numEmails++;
-                    }
-
-                    else if(title.equals("EMAIL") && numEmails == 1){
-                        intent.putExtra(Intents.Insert.SECONDARY_EMAIL,content);
                     }
 
                 }
@@ -124,8 +122,25 @@ public class DetectionActivity extends AppCompatActivity  {
 
     }
 
+    @Override
+    protected void onResume(){
+        Log.d(TAG,"RESUMING ");
+        super.onResume();
+        numPhone = 0;
+        numEmails = 0;
+
+    }
+
+    @Override
+    protected void onPause(){
+        Log.d(TAG,"PAUSING");
+        super.onPause();
+
+
+    }
+
     private Activity getCurrentActivity(){
-        return DetectionActivity.this;
+        return DetectionRecognitionActivity.this;
     }
 
     private Bitmap getProcessedBitmap(String imgPath){
