@@ -32,6 +32,10 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.opencv.android.OpenCVLoader;
 
+/*
+* User interface for taking the picture
+* */
+
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private static final String TAG = "MainActivity";

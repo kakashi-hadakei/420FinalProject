@@ -1,0 +1,186 @@
+<html>
+<head>
+<title>Recognition.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(98,151,85); font-style: italic; }
+.s3 { color: rgb(106,135,89); }
+.s4 { color: rgb(104,151,187); }
+.s5 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Recognition.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">package </span><span class="s1">com.example.ece420final.businesscard</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">android.content.Context</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.content.res.AssetManager</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.graphics.Bitmap</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.os.Environment</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.util.Log</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">com.googlecode.tesseract.android.TessBaseAPI</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">java.io.File</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.FileOutputStream</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.IOException</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.InputStream</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.OutputStream</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.ArrayList</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s2">/** 
+ * Created by hanfei on 4/15/17. 
+ * Recogniton Module after detection 
+ */</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">Recognition  { 
+    </span><span class="s0">private static final </span><span class="s1">String TAG = </span><span class="s3">&quot;RecognitionActivity&quot;</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private static final </span><span class="s1">String DATA_PATH = Environment.getExternalStorageDirectory().toString()+</span><span class="s3">&quot;/&quot;</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">public static final </span><span class="s1">String lang = </span><span class="s3">&quot;eng&quot;</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">private </span><span class="s1">TessBaseAPI tessBaseApi</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">ArrayList&lt;Bitmap&gt; receiveSubImg</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">protected </span><span class="s1">ArrayList&lt;ContactInfo&gt; info</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">String recognized</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Context myContext</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">public </span><span class="s1">Recognition(Context context){ 
+        myContext = context</span><span class="s0">;</span><span class="s1"> 
+        initialize()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+ 
+    </span><span class="s0">public void </span><span class="s1">recognize(){ 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1">i &lt; receiveSubImg.size()</span><span class="s0">;</span><span class="s1">i++){ 
+            recognized = extractText(receiveSubImg.get(i))</span><span class="s0">;</span><span class="s1"> 
+            String phoneNumber = keepNumbers(recognized)</span><span class="s0">;</span><span class="s1"> 
+ 
+            </span><span class="s0">if</span><span class="s1">(i == </span><span class="s4">0</span><span class="s1">){ 
+                Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;NAME &quot;</span><span class="s1">+ recognized)</span><span class="s0">;</span><span class="s1"> 
+                info.add(</span><span class="s0">new </span><span class="s1">ContactInfo(</span><span class="s3">&quot;NAME&quot;</span><span class="s0">,</span><span class="s1">recognized))</span><span class="s0">;</span><span class="s1"> 
+            } 
+ 
+            </span><span class="s0">if</span><span class="s1">(recognized.indexOf(</span><span class="s3">&quot;@&quot;</span><span class="s1">) != -</span><span class="s4">1</span><span class="s1">){ 
+                </span><span class="s0">int </span><span class="s1">space = recognized.indexOf(</span><span class="s3">&quot; &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">dot = recognized.lastIndexOf(</span><span class="s3">&quot;.&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if</span><span class="s1">(space != -</span><span class="s4">1</span><span class="s1">){ 
+                    info.add(</span><span class="s0">new </span><span class="s1">ContactInfo(</span><span class="s3">&quot;EMAIL&quot;</span><span class="s0">,</span><span class="s1">recognized.substring(space+</span><span class="s4">1</span><span class="s0">,</span><span class="s1">dot+</span><span class="s4">4</span><span class="s1">)))</span><span class="s0">;</span><span class="s1"> 
+                    Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;EMAIL &quot;</span><span class="s1">+recognized.substring(space))</span><span class="s0">;</span><span class="s1"> 
+                } 
+                </span><span class="s0">else</span><span class="s1">{ 
+                    info.add(</span><span class="s0">new </span><span class="s1">ContactInfo(</span><span class="s3">&quot;EMAIL&quot;</span><span class="s0">,</span><span class="s1">recognized.substring(</span><span class="s4">0</span><span class="s0">,</span><span class="s1">dot+</span><span class="s4">4</span><span class="s1">)))</span><span class="s0">;</span><span class="s1"> 
+                    Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;EMAIL &quot;</span><span class="s1">+recognized)</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+ 
+            </span><span class="s0">if</span><span class="s1">(!phoneNumber.equals(recognized)){ 
+                Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;PHONE NUMBER &quot; </span><span class="s1">+ phoneNumber)</span><span class="s0">;</span><span class="s1"> 
+                info.add(</span><span class="s0">new </span><span class="s1">ContactInfo(</span><span class="s3">&quot;PHONENUMBER&quot;</span><span class="s0">,</span><span class="s1">phoneNumber))</span><span class="s0">;</span><span class="s1"> 
+            } 
+ 
+        } 
+ 
+        tessBaseApi.end()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">initialize() { 
+        info = </span><span class="s0">new </span><span class="s1">ArrayList&lt;ContactInfo&gt;()</span><span class="s0">;</span><span class="s1"> 
+        receiveSubImg = DetectionRecognitionActivity.mySubImg</span><span class="s0">;</span><span class="s1"> 
+        loadData()</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">try</span><span class="s1">{ 
+            initTessBase()</span><span class="s0">;</span><span class="s1"> 
+        } 
+        </span><span class="s0">catch</span><span class="s1">(Exception e){ 
+            Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;tesseBaseApi init failed &quot;</span><span class="s1">+e.getMessage())</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">initTessBase() </span><span class="s0">throws </span><span class="s1">Exception{ 
+        tessBaseApi = </span><span class="s0">new </span><span class="s1">TessBaseAPI()</span><span class="s0">;</span><span class="s1"> 
+        tessBaseApi.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_CHAR)</span><span class="s0">;</span><span class="s1"> 
+        tessBaseApi.init(DATA_PATH</span><span class="s0">, </span><span class="s3">&quot;eng&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">loadData(){ 
+        String[] paths = </span><span class="s0">new </span><span class="s1">String[] { DATA_PATH</span><span class="s0">, </span><span class="s1">DATA_PATH + </span><span class="s3">&quot;tessdata/&quot; </span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">for </span><span class="s1">(String path : paths) { 
+            File dir = </span><span class="s0">new </span><span class="s1">File(path)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(!dir.exists()) { 
+                </span><span class="s0">if </span><span class="s1">(!dir.mkdirs()) { 
+                    Log.v(TAG</span><span class="s0">, </span><span class="s3">&quot;ERROR: Creation of directory &quot; </span><span class="s1">+ path + </span><span class="s3">&quot; on sdcard failed&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">return;</span><span class="s1"> 
+                } </span><span class="s0">else </span><span class="s1">{ 
+                    Log.v(TAG</span><span class="s0">, </span><span class="s3">&quot;Created directory &quot; </span><span class="s1">+ path + </span><span class="s3">&quot; on sdcard&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+ 
+        } 
+ 
+        </span><span class="s5">// lang.traineddata file with the app (in assets folder)</span><span class="s1"> 
+        </span><span class="s5">// You can get them at:</span><span class="s1"> 
+        </span><span class="s5">// http://code.google.com/p/tesseract-ocr/downloads/list</span><span class="s1"> 
+        </span><span class="s5">// This area needs work and optimization</span><span class="s1"> 
+        </span><span class="s0">if </span><span class="s1">(!(</span><span class="s0">new </span><span class="s1">File(DATA_PATH + </span><span class="s3">&quot;tessdata/&quot; </span><span class="s1">+ lang + </span><span class="s3">&quot;.traineddata&quot;</span><span class="s1">)).exists()) { 
+            </span><span class="s0">try </span><span class="s1">{ 
+                AssetManager assetManager = myContext.getAssets()</span><span class="s0">;</span><span class="s1"> 
+                InputStream in = assetManager.open(</span><span class="s3">&quot;tessdata/&quot; </span><span class="s1">+ lang + </span><span class="s3">&quot;.traineddata&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s5">//GZIPInputStream gin = new GZIPInputStream(in);</span><span class="s1"> 
+                OutputStream out = </span><span class="s0">new </span><span class="s1">FileOutputStream(DATA_PATH 
+                        + </span><span class="s3">&quot;tessdata/&quot; </span><span class="s1">+ lang + </span><span class="s3">&quot;.traineddata&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s5">// Transfer bytes from in to out</span><span class="s1"> 
+                </span><span class="s0">byte</span><span class="s1">[] buf = </span><span class="s0">new byte</span><span class="s1">[</span><span class="s4">1024</span><span class="s1">]</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">len</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">while </span><span class="s1">((len = in.read(buf)) &gt; </span><span class="s4">0</span><span class="s1">) { 
+                    out.write(buf</span><span class="s0">, </span><span class="s4">0</span><span class="s0">, </span><span class="s1">len)</span><span class="s0">;</span><span class="s1"> 
+                } 
+                in.close()</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s5">//gin.close();</span><span class="s1"> 
+                out.close()</span><span class="s0">;</span><span class="s1"> 
+ 
+                Log.v(TAG</span><span class="s0">, </span><span class="s3">&quot;Copied &quot; </span><span class="s1">+ lang + </span><span class="s3">&quot; traineddata&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">catch </span><span class="s1">(IOException e) { 
+                Log.e(TAG</span><span class="s0">, </span><span class="s3">&quot;Was unable to copy &quot; </span><span class="s1">+ lang + </span><span class="s3">&quot; traineddata &quot; </span><span class="s1">+ e.toString())</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">private </span><span class="s1">String extractText(Bitmap bitmap) { 
+        tessBaseApi.setImage(bitmap)</span><span class="s0">;</span><span class="s1"> 
+        String extractedText = tessBaseApi.getUTF8Text()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">extractedText</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private </span><span class="s1">String keepNumbers(String input){ 
+        </span><span class="s0">char </span><span class="s1">currentChar</span><span class="s0">;</span><span class="s1"> 
+        String numbers = </span><span class="s3">&quot;&quot;</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">while</span><span class="s1">(i &lt; input.length() &amp;&amp; numbers.length() &lt; </span><span class="s4">10</span><span class="s1">){ 
+            currentChar = input.charAt(i)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(Character.isDigit(currentChar)){ 
+                numbers += currentChar</span><span class="s0">;</span><span class="s1"> 
+            } 
+            i++</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">if</span><span class="s1">(numbers.length() &gt;= </span><span class="s4">10</span><span class="s1">) 
+            </span><span class="s0">return </span><span class="s1">numbers.substring(</span><span class="s4">0</span><span class="s0">,</span><span class="s4">10</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">else</span><span class="s1"> 
+            </span><span class="s0">return </span><span class="s1">input</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+} 
+</span></pre>
+</body>
+</html>

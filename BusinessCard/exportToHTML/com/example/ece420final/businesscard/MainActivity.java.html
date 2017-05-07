@@ -1,0 +1,235 @@
+<html>
+<head>
+<title>MainActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(128,128,128); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+MainActivity.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">package </span><span class="s1">com.example.ece420final.businesscard</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s2">//test</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.Manifest</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.app.Activity</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.content.Intent</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.content.pm.PackageManager</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.hardware.Camera</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.net.Uri</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.os.Environment</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.provider.MediaStore</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.support.v4.app.ActivityCompat</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.support.v4.content.ContextCompat</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.AppCompatActivity</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.util.Log</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.Button</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.ImageView</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.graphics.BitmapFactory</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.Toast</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.graphics.Matrix</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">java.io.IOException</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.text.SimpleDateFormat</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.Date</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.File</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.graphics.Bitmap</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">com.theartofdev.edmodo.cropper.CropImage</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">com.theartofdev.edmodo.cropper.CropImageView</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">org.opencv.android.OpenCVLoader</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">MainActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity { 
+    </span><span class="s0">private static final int </span><span class="s1">REQUEST_CODE = </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private static final </span><span class="s1">String TAG = </span><span class="s4">&quot;MainActivity&quot;</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Button detectButton</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Camera camera</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">File imgFile</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">String imgFilePath</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">String imgFilePathDetect</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">ImageView imageView</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Button cropping</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Uri resultUri</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Bitmap myBitmap</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Bitmap rotatedBitmap</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">static </span><span class="s1">{ 
+        </span><span class="s0">if</span><span class="s1">(!OpenCVLoader.initDebug()){ 
+            Log.d(TAG</span><span class="s0">, </span><span class="s4">&quot;OpenCV not loaded&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } </span><span class="s0">else </span><span class="s1">{ 
+            Log.d(TAG</span><span class="s0">, </span><span class="s4">&quot;OpenCV loaded&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) { 
+        </span><span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span><span class="s1"> 
+        setContentView(R.layout.activity_main)</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s2">//check permissions</span><span class="s1"> 
+        </span><span class="s0">if </span><span class="s1">(ContextCompat.checkSelfPermission(</span><span class="s0">this, </span><span class="s1">Manifest.permission.CAMERA) 
+                == PackageManager.PERMISSION_DENIED){ 
+            ActivityCompat.requestPermissions(</span><span class="s0">this, new </span><span class="s1">String[] {Manifest.permission.CAMERA}</span><span class="s0">, </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">if </span><span class="s1">(ContextCompat.checkSelfPermission(</span><span class="s0">this, </span><span class="s1">Manifest.permission.WRITE_EXTERNAL_STORAGE) 
+                == PackageManager.PERMISSION_DENIED){ 
+            ActivityCompat.requestPermissions(</span><span class="s0">this, new </span><span class="s1">String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}</span><span class="s0">, </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        imageView =(ImageView) findViewById(R.id.imageView)</span><span class="s0">;</span><span class="s1"> 
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER)</span><span class="s0">;</span><span class="s1"> 
+        imageView.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View v) { 
+                Intent cameraIntent = </span><span class="s0">new </span><span class="s1">Intent(MediaStore.ACTION_IMAGE_CAPTURE)</span><span class="s0">;</span><span class="s1"> 
+                String timeStamp = </span><span class="s0">new </span><span class="s1">SimpleDateFormat(</span><span class="s4">&quot;yyyyMMdd_HHmmss&quot;</span><span class="s1">).format(</span><span class="s0">new </span><span class="s1">Date())</span><span class="s0">;</span><span class="s1"> 
+                imgFile = </span><span class="s0">new </span><span class="s1">File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)</span><span class="s0">,</span><span class="s1">timeStamp+</span><span class="s4">&quot;.jpg&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                Uri imgUri = Uri.fromFile(imgFile)</span><span class="s0">;</span><span class="s1"> 
+ 
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT</span><span class="s0">,</span><span class="s1">imgUri)</span><span class="s0">;</span><span class="s1"> 
+                cameraIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY</span><span class="s0">,</span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s0">if </span><span class="s1">(cameraIntent.resolveActivity(getPackageManager()) != </span><span class="s0">null</span><span class="s1">){ 
+                    startActivityForResult(cameraIntent</span><span class="s0">,</span><span class="s1">REQUEST_CODE)</span><span class="s0">;</span><span class="s1"> 
+ 
+                    </span><span class="s0">if</span><span class="s1">(camera != </span><span class="s0">null</span><span class="s1">){ 
+                        camera.release()</span><span class="s0">;</span><span class="s1"> 
+                        camera = </span><span class="s0">null;</span><span class="s1"> 
+                    } 
+                } 
+ 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+        detectButton = (Button)findViewById(R.id.buttonRecognition)</span><span class="s0">;</span><span class="s1"> 
+        detectButton.setText(</span><span class="s4">&quot;Find Text&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        detectButton.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View v) { 
+                </span><span class="s2">//pass in String</span><span class="s1"> 
+                </span><span class="s0">if</span><span class="s1">(imgFilePathDetect != </span><span class="s0">null</span><span class="s1">){ 
+                    Intent detectIntent = </span><span class="s0">new </span><span class="s1">Intent(getCurrentActivity()</span><span class="s0">,</span><span class="s1">DetectionRecognitionActivity.</span><span class="s0">class</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                    detectIntent.putExtra(</span><span class="s4">&quot;imgFilePathDetect&quot;</span><span class="s0">,</span><span class="s1">imgFilePathDetect)</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">if</span><span class="s1">(resultUri != </span><span class="s0">null</span><span class="s1">) {detectIntent.putExtra(</span><span class="s4">&quot;CroppedUri&quot;</span><span class="s0">,</span><span class="s1">resultUri.toString())</span><span class="s0">;</span><span class="s1">} 
+                    startActivity(detectIntent)</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+        cropping = (Button)findViewById(R.id.buttonCrop)</span><span class="s0">;</span><span class="s1"> 
+        cropping.setText(</span><span class="s4">&quot;CROP THE CARD&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        cropping.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View v) { 
+                </span><span class="s2">//Log.d(TAG,&quot;STARTING CROPPING&quot;);</span><span class="s1"> 
+                </span><span class="s0">if</span><span class="s1">(imgFilePathDetect != </span><span class="s0">null</span><span class="s1">){ 
+                    </span><span class="s2">//Log.d(TAG,&quot;uri &quot;+imgFilePathDetect);</span><span class="s1"> 
+                    CropImage.activity(Uri.parse(</span><span class="s4">&quot;file://&quot;</span><span class="s1">+imgFilePathDetect)) 
+                            .setGuidelines(CropImageView.Guidelines.ON) 
+                            .start(getCurrentActivity())</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    </span><span class="s0">private </span><span class="s1">Activity getCurrentActivity(){ 
+        </span><span class="s0">return </span><span class="s1">MainActivity.</span><span class="s0">this;</span><span class="s1"> 
+    } 
+ 
+    @Override 
+    </span><span class="s0">public void </span><span class="s1">onResume(){ 
+        </span><span class="s0">super</span><span class="s1">.onResume()</span><span class="s0">;</span><span class="s1"> 
+        Log.d(TAG</span><span class="s0">,</span><span class="s4">&quot;Resuming&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">if</span><span class="s1">(imgFilePath != </span><span class="s0">null</span><span class="s1">){ 
+            </span><span class="s2">//Log.d(TAG,imgFilePath);</span><span class="s1"> 
+            myBitmap = BitmapFactory.decodeFile(imgFilePath)</span><span class="s0">;</span><span class="s1"> 
+            Matrix matrix = </span><span class="s0">new </span><span class="s1">Matrix()</span><span class="s0">;</span><span class="s1"> 
+            matrix.postRotate(</span><span class="s3">90</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            rotatedBitmap = Bitmap.createBitmap(myBitmap</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s1">myBitmap.getWidth()</span><span class="s0">, </span><span class="s1">myBitmap.getHeight()</span><span class="s0">, </span><span class="s1">matrix</span><span class="s0">, true</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            imageView.setImageBitmap(rotatedBitmap)</span><span class="s0">;</span><span class="s1"> 
+ 
+        } 
+ 
+        </span><span class="s0">if</span><span class="s1">(resultUri != </span><span class="s0">null </span><span class="s1">&amp;&amp; imgFilePath == </span><span class="s0">null</span><span class="s1">){ 
+            </span><span class="s2">//Log.d(TAG,resultUri.toString());</span><span class="s1"> 
+            </span><span class="s0">try</span><span class="s1">{ 
+                myBitmap = MediaStore.Images.Media.getBitmap(</span><span class="s0">this</span><span class="s1">.getContentResolver()</span><span class="s0">,</span><span class="s1">resultUri)</span><span class="s0">;</span><span class="s1"> 
+                imageView.setImageBitmap(myBitmap)</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+            } </span><span class="s0">catch</span><span class="s1">(IOException e){ 
+                Log.d(TAG</span><span class="s0">,</span><span class="s1">e.getMessage())</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onPause() { 
+        Log.w(TAG</span><span class="s0">, </span><span class="s4">&quot;App paused&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">super</span><span class="s1">.onPause()</span><span class="s0">;</span><span class="s1"> 
+        imgFilePath = </span><span class="s0">null;</span><span class="s1"> 
+        resultUri = </span><span class="s0">null;</span><span class="s1"> 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onDestroy() { 
+        Log.w(TAG</span><span class="s0">, </span><span class="s4">&quot;App destroyed&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">super</span><span class="s1">.onDestroy()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(rotatedBitmap != </span><span class="s0">null</span><span class="s1">) {rotatedBitmap.recycle()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(myBitmap != </span><span class="s0">null</span><span class="s1">) {myBitmap.recycle()</span><span class="s0">;</span><span class="s1">} 
+    } 
+ 
+    </span><span class="s0">protected void </span><span class="s1">onActivityResult(</span><span class="s0">int </span><span class="s1">request</span><span class="s0">,int </span><span class="s1">result</span><span class="s0">,</span><span class="s1">Intent data){ 
+        </span><span class="s0">if</span><span class="s1">(request == REQUEST_CODE){ 
+            </span><span class="s0">switch </span><span class="s1">(result){ 
+                </span><span class="s0">case </span><span class="s1">Activity.RESULT_OK: 
+                    </span><span class="s0">if</span><span class="s1">(imgFile.exists()){ 
+                        Toast.makeText(</span><span class="s0">this, </span><span class="s4">&quot;The file was saved at&quot;</span><span class="s1">+imgFile.getAbsolutePath()</span><span class="s0">, </span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span><span class="s1"> 
+                        imgFilePath = imgFile.getAbsolutePath()</span><span class="s0">;</span><span class="s1"> 
+                        imgFilePathDetect = imgFile.getAbsolutePath()</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">else</span><span class="s1">{ 
+                        Toast.makeText(</span><span class="s0">this, </span><span class="s4">&quot;Error occurred&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">break;</span><span class="s1"> 
+ 
+                </span><span class="s0">case </span><span class="s1">Activity.RESULT_CANCELED: 
+                    </span><span class="s0">break;</span><span class="s1"> 
+                </span><span class="s0">default</span><span class="s1">: 
+                    </span><span class="s0">break;</span><span class="s1"> 
+            } 
+        } 
+ 
+        </span><span class="s0">if </span><span class="s1">(request == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) { 
+            CropImage.ActivityResult output = CropImage.getActivityResult(data)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s2">//Log.d(TAG,&quot;IT MATCHES THE REQUEST CODE&quot;);</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(result == RESULT_OK) { 
+                </span><span class="s2">//Log.d(TAG,&quot;IT IS OK&quot;);</span><span class="s1"> 
+                resultUri = output.getUri()</span><span class="s0">;</span><span class="s1"> 
+                Log.d(TAG</span><span class="s0">,</span><span class="s1">resultUri.toString())</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">else if </span><span class="s1">(result == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) { 
+                Exception error = output.getError()</span><span class="s0">;</span><span class="s1"> 
+                Log.d(TAG</span><span class="s0">,</span><span class="s1">error.getMessage())</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    } 
+}</span></pre>
+</body>
+</html>

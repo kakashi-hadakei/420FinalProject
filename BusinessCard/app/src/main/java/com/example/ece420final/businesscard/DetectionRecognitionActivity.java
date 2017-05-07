@@ -58,7 +58,7 @@ public class DetectionRecognitionActivity extends AppCompatActivity  {
         /*if(receivedImgPath != null){
             Log.d(TAG,receivedImgPath);
         }*/
-        cropped = Uri.parse(extras.getString("CroppedUri"));
+        if(extras.getString("CroppedUri") != null) {cropped = Uri.parse(extras.getString("CroppedUri"));}
         /*if(cropped != null){
             Log.d(TAG,"received Uri "+cropped.toString());
         }*/

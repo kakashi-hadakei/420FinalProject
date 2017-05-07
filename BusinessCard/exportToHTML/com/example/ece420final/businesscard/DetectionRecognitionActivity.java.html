@@ -1,0 +1,237 @@
+<html>
+<head>
+<title>DetectionRecognitionActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(98,151,85); font-style: italic; }
+.s3 { color: rgb(106,135,89); }
+.s4 { color: rgb(104,151,187); }
+.s5 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+DetectionRecognitionActivity.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">package </span><span class="s1">com.example.ece420final.businesscard</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">android.app.Activity</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.content.Intent</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.graphics.Bitmap</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.AppCompatActivity</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.ImageView</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.Button</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.util.Log</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.provider.MediaStore</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.provider.ContactsContract.Intents</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.provider.ContactsContract</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+ 
+</span><span class="s0">import </span><span class="s1">java.util.Collections</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.List</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.ArrayList</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">org.opencv.android.Utils</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.Mat</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.Point</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.Scalar</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.Size</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.imgproc.Imgproc</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.MatOfPoint</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">org.opencv.core.Rect</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.net.Uri</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s2">/** 
+ * Created by hanfei on 4/10/17. 
+ * process received taken Image according to 
+ * the pre-tested python script 
+ * 
+ * detecting texts from the input image; 
+ */</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">DetectionRecognitionActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity  { 
+    </span><span class="s0">private static final </span><span class="s1">String TAG = </span><span class="s3">&quot;DRActivity&quot;</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">ImageView myImg</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Button myRecognitionButton</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">String receivedImgPath</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">protected static </span><span class="s1">ArrayList&lt;Bitmap&gt; mySubImg</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Uri cropped </span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Bitmap processed</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Bitmap myBitmap</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private static int </span><span class="s1">numEmails = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private static int </span><span class="s1">numPhone = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">public void </span><span class="s1">onCreate(Bundle savedInstanceState) { 
+        </span><span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span><span class="s1"> 
+        setContentView(R.layout.activity_detection)</span><span class="s0">;</span><span class="s1"> 
+ 
+        Bundle extras = getIntent().getExtras()</span><span class="s0">;</span><span class="s1"> 
+        receivedImgPath = extras.getString(</span><span class="s3">&quot;imgFilePathDetect&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s5">/*if(receivedImgPath != null){ 
+            Log.d(TAG,receivedImgPath); 
+        }*/</span><span class="s1"> 
+        cropped = Uri.parse(extras.getString(</span><span class="s3">&quot;CroppedUri&quot;</span><span class="s1">))</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s5">/*if(cropped != null){ 
+            Log.d(TAG,&quot;received Uri &quot;+cropped.toString()); 
+        }*/</span><span class="s1"> 
+ 
+        mySubImg = </span><span class="s0">new </span><span class="s1">ArrayList&lt;Bitmap&gt;()</span><span class="s0">;</span><span class="s1"> 
+        myImg = (ImageView)findViewById(R.id.imageView2)</span><span class="s0">;</span><span class="s1"> 
+        processed = getProcessedBitmap(receivedImgPath)</span><span class="s0">;</span><span class="s1"> 
+        myImg.setImageBitmap(processed)</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+        myRecognitionButton = (Button)findViewById(R.id.buttonRecognition)</span><span class="s0">;</span><span class="s1"> 
+        myRecognitionButton.setText(</span><span class="s3">&quot;Create Contact&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        myRecognitionButton.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View v) { 
+                Recognition recognizer = </span><span class="s0">new </span><span class="s1">Recognition(getCurrentActivity())</span><span class="s0">;</span><span class="s1"> 
+                recognizer.recognize()</span><span class="s0">;</span><span class="s1"> 
+                ArrayList&lt;ContactInfo&gt; info = recognizer.info</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s5">// Creates a new Intent to insert a contact</span><span class="s1"> 
+                Intent intent = </span><span class="s0">new </span><span class="s1">Intent(Intents.Insert.ACTION)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s5">// Sets the MIME type to match the Contacts Provider</span><span class="s1"> 
+                intent.setType(ContactsContract.RawContacts.CONTENT_TYPE)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1">i &lt; info.size()</span><span class="s0">;</span><span class="s1">i++){ 
+                    ContactInfo in = info.get(i)</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s5">//Log.d(TAG,in.toString());</span><span class="s1"> 
+                    String content = in.getMyContent()</span><span class="s0">;</span><span class="s1"> 
+                    String title = in.getMyTitle()</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">if</span><span class="s1">(title.equals(</span><span class="s3">&quot;NAME&quot;</span><span class="s1">)){ 
+                        intent.putExtra(Intents.Insert.NAME</span><span class="s0">,</span><span class="s1">content)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                    </span><span class="s0">else if</span><span class="s1">(title.equals(</span><span class="s3">&quot;PHONENUMBER&quot;</span><span class="s1">) &amp;&amp; numPhone == </span><span class="s4">0</span><span class="s1">){ 
+                        intent.putExtra(Intents.Insert.PHONE</span><span class="s0">,</span><span class="s1">content)</span><span class="s0">;</span><span class="s1"> 
+                        numPhone++</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                    </span><span class="s0">else if</span><span class="s1">(title.equals(</span><span class="s3">&quot;EMAIL&quot;</span><span class="s1">) &amp;&amp; numEmails == </span><span class="s4">0</span><span class="s1">){ 
+                        intent.putExtra(Intents.Insert.EMAIL</span><span class="s0">,</span><span class="s1">content)</span><span class="s0">;</span><span class="s1"> 
+                        numEmails++</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                } 
+ 
+                startActivity(intent)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        })</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onDestroy(){ 
+        </span><span class="s0">super</span><span class="s1">.onDestroy()</span><span class="s0">;</span><span class="s1"> 
+        processed.recycle()</span><span class="s0">;</span><span class="s1"> 
+        myBitmap.recycle()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1">i &lt; mySubImg.size()</span><span class="s0">;</span><span class="s1">i++){ 
+            mySubImg.get(i).recycle()</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+ 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onResume(){ 
+        Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;RESUMING &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">super</span><span class="s1">.onResume()</span><span class="s0">;</span><span class="s1"> 
+        numPhone = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+        numEmails = </span><span class="s4">0</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onPause(){ 
+        Log.d(TAG</span><span class="s0">,</span><span class="s3">&quot;PAUSING&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">super</span><span class="s1">.onPause()</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+    } 
+ 
+    </span><span class="s0">private </span><span class="s1">Activity getCurrentActivity(){ 
+        </span><span class="s0">return </span><span class="s1">DetectionRecognitionActivity.</span><span class="s0">this;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private </span><span class="s1">Bitmap getProcessedBitmap(String imgPath){ 
+        </span><span class="s0">if</span><span class="s1">(imgPath != </span><span class="s0">null</span><span class="s1">) { 
+            </span><span class="s0">try</span><span class="s1">{ 
+                myBitmap = MediaStore.Images.Media.getBitmap(</span><span class="s0">this</span><span class="s1">.getContentResolver()</span><span class="s0">,</span><span class="s1">cropped)</span><span class="s0">;</span><span class="s1"> 
+                 </span><span class="s5">/* 
+                gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY) # grayscale 
+                _,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY_INV) # threshold 
+                kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(6,1)) 
+                dilated = cv2.dilate(thresh,kernel,iterations = 10) # dilate 
+                img,contours,hierarchy = cv2.findContours(dilated,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE) # get contours 
+                */</span><span class="s1"> 
+ 
+                </span><span class="s5">//dilation and detection;</span><span class="s1"> 
+                Mat imgMat = </span><span class="s0">new </span><span class="s1">Mat()</span><span class="s0">;</span><span class="s1"> 
+                Mat imgOriginal = </span><span class="s0">new </span><span class="s1">Mat()</span><span class="s0">;</span><span class="s1"> 
+                Utils.bitmapToMat(myBitmap</span><span class="s0">,</span><span class="s1">imgMat)</span><span class="s0">;</span><span class="s1"> 
+                Utils.bitmapToMat(myBitmap</span><span class="s0">,</span><span class="s1">imgOriginal)</span><span class="s0">;</span><span class="s1"> 
+                Bitmap bmpOut = Bitmap.createBitmap(imgMat.cols()</span><span class="s0">,</span><span class="s1">imgMat.rows()</span><span class="s0">,</span><span class="s1">Bitmap.Config.ARGB_8888)</span><span class="s0">;</span><span class="s1"> 
+                Imgproc.cvtColor(imgMat</span><span class="s0">,</span><span class="s1">imgMat</span><span class="s0">,</span><span class="s1">Imgproc.COLOR_BGR2GRAY)</span><span class="s0">;</span><span class="s5">//to gray scale</span><span class="s1"> 
+                Imgproc.threshold(imgMat</span><span class="s0">,</span><span class="s1">imgMat</span><span class="s0">,</span><span class="s4">100</span><span class="s0">,</span><span class="s4">255</span><span class="s0">,</span><span class="s1">Imgproc.THRESH_BINARY_INV)</span><span class="s0">;</span><span class="s1"> 
+ 
+                Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS</span><span class="s0">,new </span><span class="s1">Size(</span><span class="s4">6</span><span class="s0">,</span><span class="s4">1</span><span class="s1">))</span><span class="s0">;</span><span class="s1"> 
+                dilate(imgMat</span><span class="s0">,</span><span class="s1">imgMat</span><span class="s0">,</span><span class="s1">kernel</span><span class="s0">,</span><span class="s4">10</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+                List&lt;MatOfPoint&gt; contours = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+                Mat hierarchy = </span><span class="s0">new </span><span class="s1">Mat()</span><span class="s0">;</span><span class="s1"> 
+                Imgproc.findContours(imgMat</span><span class="s0">,</span><span class="s1">contours</span><span class="s0">,</span><span class="s1">hierarchy</span><span class="s0">,</span><span class="s1">Imgproc.RETR_EXTERNAL</span><span class="s0">,</span><span class="s1">Imgproc.CHAIN_APPROX_SIMPLE)</span><span class="s0">;</span><span class="s1"> 
+                Collections.sort(contours</span><span class="s0">,new </span><span class="s1">SortByY())</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s5">//draw contours</span><span class="s1"> 
+                </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1">i &lt; contours.size()</span><span class="s0">;</span><span class="s1">i++){ 
+                    MatOfPoint matOfPoint = contours.get(i)</span><span class="s0">;</span><span class="s1"> 
+                    Rect rect = Imgproc.boundingRect(matOfPoint)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s5">/* 
+                * corresponding python script 
+                * # draw rectangle around contour on original image 
+                * cv2.rectangle(image,(x,y),(x+w,y+h),(255,0,255),2) 
+                */</span><span class="s1"> 
+ 
+                    </span><span class="s0">if</span><span class="s1">(rect.height &gt; </span><span class="s4">100 </span><span class="s1">&amp;&amp; rect.width &gt; </span><span class="s4">300</span><span class="s1">){</span><span class="s0">continue;</span><span class="s1">} 
+                    </span><span class="s0">if</span><span class="s1">(rect.height &lt;</span><span class="s4">30 </span><span class="s1">|| rect.width &lt; </span><span class="s4">30</span><span class="s1">){</span><span class="s0">continue;</span><span class="s1">} 
+                    Imgproc.rectangle(imgOriginal</span><span class="s0">, new </span><span class="s1">Point(rect.x</span><span class="s0">,</span><span class="s1">rect.y)</span><span class="s0">,</span><span class="s1"> 
+                            </span><span class="s0">new </span><span class="s1">Point(rect.x+rect.width</span><span class="s0">,</span><span class="s1">rect.y+rect.height)</span><span class="s0">,</span><span class="s1"> 
+                            </span><span class="s0">new </span><span class="s1">Scalar(</span><span class="s4">255</span><span class="s0">,</span><span class="s4">0</span><span class="s0">,</span><span class="s4">255</span><span class="s1">)</span><span class="s0">,</span><span class="s1"> 
+                            </span><span class="s4">2</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                    Bitmap subMap = Bitmap.createBitmap(myBitmap</span><span class="s0">,</span><span class="s1">rect.x</span><span class="s0">,</span><span class="s1">rect.y</span><span class="s0">,</span><span class="s1">rect.width</span><span class="s0">,</span><span class="s1">rect.height)</span><span class="s0">;</span><span class="s1"> 
+                    mySubImg.add(subMap)</span><span class="s0">;</span><span class="s1"> 
+                } 
+                Utils.matToBitmap(imgOriginal</span><span class="s0">,</span><span class="s1">bmpOut)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">return </span><span class="s1">bmpOut</span><span class="s0">;</span><span class="s1"> 
+ 
+            }</span><span class="s0">catch</span><span class="s1">(Exception e){ 
+                Log.d(TAG</span><span class="s0">,</span><span class="s1">e.getMessage())</span><span class="s0">;</span><span class="s1"> 
+            } 
+ 
+        } 
+        </span><span class="s0">return null;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">dilate(Mat src</span><span class="s0">,</span><span class="s1">Mat dst</span><span class="s0">,</span><span class="s1">Mat kernel</span><span class="s0">,int </span><span class="s1">iterations){ 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s4">0</span><span class="s0">;</span><span class="s1">i &lt; iterations</span><span class="s0">;</span><span class="s1">i++){ 
+            Imgproc.dilate(src</span><span class="s0">,</span><span class="s1">dst</span><span class="s0">,</span><span class="s1">kernel)</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+ 
+ 
+ 
+} 
+</span></pre>
+</body>
+</html>
